@@ -3,18 +3,23 @@ use std::fs;
 use std::time::{Duration, Instant};
 
 fn main() {
-    let n = 33.33333333; // loop every n millis
+    let fps:f32 = 25.0;
+    //
     let folder_path = "video/";
     let f: usize = fs::read_dir(folder_path)
         .expect("Failed to read folder.")
         .count();
-    let name="apple";
+    let name="apple-";
+    let format ="png";
     let divider = 6;
     let mut last_time = Instant::now();
+    let n = 1000 as f32/fps as f32; // loop every n millis
+    
     let micros= (n*1000 as f32) as u64;
+    
     for frame in 1..f {
         // Open the image file
-        let path: String = format!("video/{name}-{:0width$}.png", frame, width = 5);
+        let path: String = format!("{folder_path}/{name}{:0width$}.{format}", frame, width = 5);
         //println!("{}", path );
         let img = image::open(path).unwrap();
         print!("\x1B[1;1H");
