@@ -3,7 +3,7 @@ use std::fs;
 use std::time::{Duration, Instant};
 
 fn main() {
-    let n = 0; // loop every n milliseconds
+    let n = 33; // loop every n milliseconds
     let folder_path = "video/";
     let f: usize = fs::read_dir(folder_path)
         .expect("Failed to read folder.")
