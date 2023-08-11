@@ -3,7 +3,7 @@ use std::fs;
 use std::time::{Duration, Instant};
 
 fn main() {
-    let n = 33; // loop every n milliseconds
+    let n = 33.33333333; // loop every n millis
     let folder_path = "video/";
     let f: usize = fs::read_dir(folder_path)
         .expect("Failed to read folder.")
@@ -11,6 +11,7 @@ fn main() {
     let name="apple";
     let divider = 6;
     let mut last_time = Instant::now();
+    let micros= (n*1000 as f32) as u64;
     for frame in 1..f {
         // Open the image file
         let path: String = format!("video/{name}-{:0width$}.png", frame, width = 5);
@@ -44,13 +45,14 @@ fn main() {
             }
             println!();
         }
+        //println!("{}",frame);
         // Calculate the time it took to execute the code inside the loop
         let elapsed = last_time.elapsed();
-        let elapsed_millis = elapsed.as_millis() as u64;
+        let elapsed_micros = elapsed.as_micros() as u64;
 
         // Sleep for the remaining time until the next loop iteration
-        if elapsed_millis < n {
-            let remaining = Duration::from_millis(n - elapsed_millis);
+        if elapsed_micros < micros {
+            let remaining = Duration::from_micros(micros - elapsed_micros);
             std::thread::sleep(remaining);
         }
 
