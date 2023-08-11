@@ -9,6 +9,7 @@ fn main() {
         .expect("Failed to read folder.")
         .count();
     let name="apple";
+    let divider = 6;
     let mut last_time = Instant::now();
     for frame in 1..f {
         // Open the image file
@@ -18,7 +19,7 @@ fn main() {
         print!("\x1B[1;1H");
         // Get the dimensions of the image
         let (width, height) = img.dimensions();
-        let divider = 6;
+
         // Loop through each pixel in the image
         for y in (0..height).step_by(divider) {
             for x in (0..width).step_by(divider / 2) {
