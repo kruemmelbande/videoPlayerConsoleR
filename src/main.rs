@@ -8,10 +8,11 @@ fn main() {
     let f: usize = fs::read_dir(folder_path)
         .expect("Failed to read folder.")
         .count();
+    let name="apple";
     let mut last_time = Instant::now();
     for frame in 1..f {
         // Open the image file
-        let path: String = format!("video/apple-{:0width$}.png", frame, width = 5);
+        let path: String = format!("video/{name}-{:0width$}.png", frame, width = 5);
         //println!("{}", path );
         let img = image::open(path).unwrap();
         print!("\x1B[1;1H");
