@@ -1,9 +1,13 @@
+use std::fs::File;
+use std::io::BufReader;
+use std::thread;
+use rodio::{Decoder, OutputStream, source::Source};
 use image::GenericImageView;
 use std::fs;
 use std::time::{Duration, Instant};
 
 fn main() {
-    let fps:f32 = 25.0;
+    let fps:f32 = 30.;
     //
     let folder_path = "video/";
     let f: usize = fs::read_dir(folder_path)
@@ -11,11 +15,20 @@ fn main() {
         .count();
     let name="apple-";
     let format ="png";
-    let divider = 6;
-    let mut last_time = Instant::now();
-    let n = 1000 as f32/fps as f32; // loop every n millis
-    
-    let micros= (n*1000 as f32) as u64;
+    let color:bool = false;
+    let divider = 10;
+    // Get a output stream handle to the default physical sound device
+    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+    // Load a sound from a file, using a path relative to Cargo.toml
+    let file = BufReader::new(File::open("audio.mp3").unwrap());
+    // Decode that sound file into a source
+    let source = Decoder::new(file).unwrap();
+    // Play the sound directly on the device
+    stream_handle.play_raw(source.convert_samples()).ok();
+    let start = Instant::now();
+    let n:u64 = (1000000. /fps as f32) as u64; // loop every n micros
+    print!("{}", n);
+    thread::sleep(Duration::from_millis(1000));
     
     for frame in 1..f {
         // Open the image file
@@ -37,31 +50,40 @@ fn main() {
 
                 // Do something with the RGB values
                 //println!("Pixel at ({}, {}) has RGB values ({}, {}, {})", x, y, r, g, b);
-                let pixel_bw: u8 = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
-                match pixel_bw {
-                    0..=42 => print!(" "),
-                    43..=84 => print!("."),
-                    85..=126 => print!("-"),
-                    127..=168 => print!("="),
-                    169..=210 => print!("+"),
-                    211..=252 => print!("*"),
-                    253..=255 => print!("#"),
+                if color{
+                    
+                    print!("\x1B[38;2;{};{};{}m█", r, g, b);
+                }else{
+                    let pixel_bw: u8 = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
+                    match pixel_bw {
+                        0..=42 => print!(" "),
+                        43..=84 => print!("."),
+                        85..=126 => print!("-"),
+                        127..=168 => print!("="),
+                        169..=210 => print!("+"),
+                        211..=252 => print!("*"),
+                        253..=255 => print!("#"),
+                    }
                 }
             }
             println!();
         }
         //println!("{}",frame);
         // Calculate the time it took to execute the code inside the loop
-        let elapsed = last_time.elapsed();
-        let elapsed_micros = elapsed.as_micros() as u64;
+       // Calculate the target execution time for this iteration
+       let target_time = start + Duration::from_micros(frame as u64 * n as u64);
 
-        // Sleep for the remaining time until the next loop iteration
-        if elapsed_micros < micros {
-            let remaining = Duration::from_micros(micros - elapsed_micros);
-            std::thread::sleep(remaining);
-        }
+       // Get the current time
+       let current_time = Instant::now();
 
-        // Update the last_time variable
-        last_time = Instant::now();
+       // Check if we need to sleep or if we're already behind schedule
+       if target_time > current_time {
+           // Calculate the duration to sleep to reach the target time
+           let sleep_duration = target_time - current_time;
+
+           // Sleep until the target time
+           thread::sleep(sleep_duration);
+       }
+
     }
 }
