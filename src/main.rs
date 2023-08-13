@@ -17,14 +17,17 @@ fn main() {
     let format ="png";
     let color:bool = false;
     let divider = 10;
-    // Get a output stream handle to the default physical sound device
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    // Load a sound from a file, using a path relative to Cargo.toml
-    let file = BufReader::new(File::open("audio.mp3").unwrap());
-    // Decode that sound file into a source
-    let source = Decoder::new(file).unwrap();
-    // Play the sound directly on the device
-    stream_handle.play_raw(source.convert_samples()).ok();
+    let use_audio:bool = true;
+    if use_audio{
+        // Get a output stream handle to the default physical sound device
+        let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+        // Load a sound from a file, using a path relative to Cargo.toml
+        let file = BufReader::new(File::open("audio.mp3").unwrap());
+        // Decode that sound file into a source
+        let source = Decoder::new(file).unwrap();
+        // Play the sound directly on the device
+        stream_handle.play_raw(source.convert_samples()).ok();
+    }
     let start = Instant::now();
     let n:u64 = (1000000. /fps as f32) as u64; // loop every n micros
     thread::sleep(Duration::from_millis(1000));
