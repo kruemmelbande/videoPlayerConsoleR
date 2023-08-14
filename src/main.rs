@@ -7,28 +7,31 @@ use std::fs;
 use std::time::{Duration, Instant};
 
 fn main() {
-    let fps:f32 = 30.;
+    let fps:f32 = 24.;
     //
-    let folder_path = "video/";
+    let folder_path = "video2/";
     let f: usize = fs::read_dir(folder_path)
         .expect("Failed to read folder.")
         .count();
     let name="apple-";
     let format ="png";
-    let color:bool = false;
-    let divider = 10;
-    // Get a output stream handle to the default physical sound device
+    let color:bool = true;
+    let divider = 2;
+    
+    //Audio code, comment out if you dont want audio
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    // Load a sound from a file, using a path relative to Cargo.toml
     let file = BufReader::new(File::open("audio.mp3").unwrap());
-    // Decode that sound file into a source
     let source = Decoder::new(file).unwrap();
-    // Play the sound directly on the device
     stream_handle.play_raw(source.convert_samples()).ok();
+
+
     let start = Instant::now();
     let n:u64 = (1000000. /fps as f32) as u64; // loop every n micros
-    
     for frame in 1..f {
+        //if we are supposed to be in the next frame, just skip this one
+        if start.elapsed().as_micros() > (((frame as u128) + 1) * n as u128) {
+            continue;
+        }
         // Open the image file
         let path: String = format!("{folder_path}/{name}{:0width$}.{format}", frame, width = 5);
         //println!("{}", path );
