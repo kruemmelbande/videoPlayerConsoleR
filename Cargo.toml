@@ -1,5 +1,5 @@
 [package]
-name = "videoPlayerConsoleR"
+name = "video_player_console_r"
 version = "0.1.0"
 edition = "2021"
 

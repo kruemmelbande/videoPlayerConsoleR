@@ -16,7 +16,7 @@ fn main() {
     let name="apple-";
     let format ="png";
     let color:bool = true;
-    let divider = 6;
+    let divider = 4;
     
     //Audio code, comment out if you dont want audio
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
