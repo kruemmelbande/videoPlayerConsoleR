@@ -29,13 +29,15 @@ fn main() {
     stream_handle.play_raw(source.convert_samples()).ok();
     let start = Instant::now();
     let n:u64 = (1000000. /fps as f32) as u64; // loop every n micros
+
+    println!("\x1B[2J");
     
     for frame in 1..f {
         // Open the image file
         let path: String = format!("{folder_path}/{name}{:0width$}.{format}", frame, width = 5);
         //println!("{}", path );
         let img = image::open(path).unwrap();
-        print!("\x1B[1;1H");
+        print!("\x1B[H");
         // Get the dimensions of the image
         let (width, height) = img.dimensions();
 
