@@ -16,7 +16,7 @@ fn main() {
     let name="apple-";
     let format ="png";
     let color:bool = true;
-    let divider = 2;
+    let divider = 6;
     
     //Audio code, comment out if you dont want audio
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
@@ -85,6 +85,6 @@ fn main() {
            // Sleep until the target time
            thread::sleep(sleep_duration);
        }
-
     }
+    print!("\x1B[0m");
 }
