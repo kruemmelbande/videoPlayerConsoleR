@@ -5,6 +5,8 @@ use rodio::{Decoder, OutputStream, source::Source};
 use image::GenericImageView;
 use std::fs;
 use std::time::{Duration, Instant};
+use std::io::prelude::*;                                                           
+use std::io;
 
 fn main() {
     let fps:f32 = 30.;
@@ -64,8 +66,11 @@ fn main() {
                     }
                 }
             }
-            println!();
+            print!("\n");
         }
+
+        io::stdout().flush().unwrap();
+        
         //println!("{}",frame);
         // Calculate the time it took to execute the code inside the loop
        // Calculate the target execution time for this iteration
