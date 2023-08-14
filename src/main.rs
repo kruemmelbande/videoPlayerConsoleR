@@ -27,7 +27,6 @@ fn main() {
     stream_handle.play_raw(source.convert_samples()).ok();
     let start = Instant::now();
     let n:u64 = (1000000. /fps as f32) as u64; // loop every n micros
-    thread::sleep(Duration::from_millis(1000));
     
     for frame in 1..f {
         // Open the image file
