@@ -52,7 +52,7 @@ fn main() {
                 //println!("Pixel at ({}, {}) has RGB values ({}, {}, {})", x, y, r, g, b);
                 if color{
                     
-                    print!("\x1B[38;2;{};{};{}m█", r, g, b);
+                    print!("\x1B[48;2;{};{};{}m ", r, g, b);
                 }else{
                     let pixel_bw: u8 = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
                     match pixel_bw {
