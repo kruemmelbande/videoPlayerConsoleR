@@ -17,32 +17,27 @@ fn main() {
     let name = "apple-";
     let format = "png";
     let color: bool = true;
-    let divider = 9;
+    let divider = 11;
     let enable_audio = true;
 
     let _stream: OutputStream;
     let stream_handle: OutputStreamHandle;
     let file: BufReader<File>;
     let source: Decoder<BufReader<File>>;
-    let mut is_init = false;
     if enable_audio {
-        // let _audio_play = thread::spawn(move || {
-            // let time = f as f32 / fps;
-            //Audio code, comment out if you dont want audio
             (_stream, stream_handle) = OutputStream::try_default().unwrap();
             file = BufReader::new(File::open("audio.mp3").unwrap());
             source = Decoder::new(file).unwrap();
             stream_handle.play_raw(source.convert_samples()).ok();
-            // thread::sleep(Duration::from_secs(time as u64));
-        // });
     }
 
     let start = Instant::now();
     let n: u64 = (1000000. / fps as f32) as u64; // loop every n micros
-
+    let mut frames_skip: u64 = 0;
     for frame in 1..f {
         //if we are supposed to be in the next frame, just skip this one
         if start.elapsed().as_micros() > (((frame as u128) + 1) * n as u128) {
+            frames_skip += 1;
             continue;
         }
         // Open the image file
@@ -98,4 +93,5 @@ fn main() {
         }
     }
     print!("\x1B[0m");
+    println!("Skipped {} out of {} frames. ({}%)", frames_skip, f, frames_skip as f32 / f as f32 * 100.);
 }
