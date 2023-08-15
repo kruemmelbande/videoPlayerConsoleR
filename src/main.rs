@@ -1,4 +1,5 @@
 use image::GenericImageView;
+use rodio::OutputStreamHandle;
 use rodio::{source::Source, Decoder, OutputStream};
 use std::fs;
 use std::fs::File;
@@ -17,18 +18,23 @@ fn main() {
     let format = "png";
     let color: bool = true;
     let divider = 9;
-    let enable_audio = true;
+    let enable_audio = false;
+
+    let _stream: OutputStream;
+    let stream_handle: OutputStreamHandle;
+    let file: BufReader<File>;
+    let source: Decoder<BufReader<File>>;
 
     if enable_audio {
-        let _audio_play = thread::spawn(move || {
-            let time = f as f32 / fps;
+        // let _audio_play = thread::spawn(move || {
+            // let time = f as f32 / fps;
             //Audio code, comment out if you dont want audio
-            let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-            let file = BufReader::new(File::open("audio.mp3").unwrap());
-            let source = Decoder::new(file).unwrap();
+            (_stream, stream_handle) = OutputStream::try_default().unwrap();
+            file = BufReader::new(File::open("audio.mp3").unwrap());
+            source = Decoder::new(file).unwrap();
             stream_handle.play_raw(source.convert_samples()).ok();
-            thread::sleep(Duration::from_secs(time as u64));
-        });
+            // thread::sleep(Duration::from_secs(time as u64));
+        // });
     }
 
     let start = Instant::now();
