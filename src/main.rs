@@ -6,27 +6,35 @@ use image::GenericImageView;
 use std::fs;
 use std::time::{Duration, Instant};
 
+
 fn main() {
     let fps:f32 = 24.;
     //
-    let folder_path = "video2/";
+    let folder_path = "video/";
     let f: usize = fs::read_dir(folder_path)
         .expect("Failed to read folder.")
         .count();
     let name="apple-";
     let format ="png";
     let color:bool = true;
-    let divider = 4;
+    let divider = 8;
+    let enable_audio=true;
     
-    //Audio code, comment out if you dont want audio
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    let file = BufReader::new(File::open("audio.mp3").unwrap());
-    let source = Decoder::new(file).unwrap();
-    stream_handle.play_raw(source.convert_samples()).ok();
-
-
+    if enable_audio{
+        let audio_play = thread::spawn(move||{
+            let time = f as f32*fps;
+            //Audio code, comment out if you dont want audio
+            let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+            let file = BufReader::new(File::open("audio.mp3").unwrap());
+            let source = Decoder::new(file).unwrap();
+            stream_handle.play_raw(source.convert_samples()).ok();
+            thread::sleep(Duration::from_secs(time as u64));
+        });
+    }
+ 
     let start = Instant::now();
     let n:u64 = (1000000. /fps as f32) as u64; // loop every n micros
+    
     for frame in 1..f {
         //if we are supposed to be in the next frame, just skip this one
         if start.elapsed().as_micros() > (((frame as u128) + 1) * n as u128) {
