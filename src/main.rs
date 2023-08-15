@@ -18,13 +18,13 @@ fn main() {
     let format = "png";
     let color: bool = true;
     let divider = 9;
-    let enable_audio = false;
+    let enable_audio = true;
 
     let _stream: OutputStream;
     let stream_handle: OutputStreamHandle;
     let file: BufReader<File>;
     let source: Decoder<BufReader<File>>;
-
+    let mut is_init = false;
     if enable_audio {
         // let _audio_play = thread::spawn(move || {
             // let time = f as f32 / fps;
@@ -48,11 +48,10 @@ fn main() {
         // Open the image file
         let path: String = format!("{folder_path}/{name}{:0width$}.{format}", frame, width = 5);
         //println!("{}", path );
-        let img = image::open(path).unwrap();
-        print!("\x1B[1;1H");
+        let img = image::open(path).expect("The image has not been found in the specified path, or under the specified name.");
         // Get the dimensions of the image
         let (width, height) = img.dimensions();
-
+        print!("\x1B[1;1H");
         // Loop through each pixel in the image
         for y in (0..height).step_by(divider) {
             for x in (0..width).step_by(divider / 2) {
@@ -65,7 +64,7 @@ fn main() {
                 // Do something with the RGB values
                 //println!("Pixel at ({}, {}) has RGB values ({}, {}, {})", x, y, r, g, b);
                 if color {
-                    print!("\x1B[38;2;{};{};{}m█", r, g, b);
+                    print!("\x1B[48;2;{};{};{}m ", r, g, b);
                 } else {
                     let pixel_bw: u8 = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
                     match pixel_bw {

@@ -22,7 +22,7 @@ if exist "video" (
 
 REM Extract frames from the input video
 @echo on
-ffmpeg -i "%input_video%" "video\frame%%05d.jpg"
+ffmpeg -i "%input_video%" "video\apple-%%05d.png"
 @echo off
 REM Extract audio from the input video and save as 'audio.mp3'
 @echo on
