@@ -1,28 +1,27 @@
+use image::GenericImageView;
+use rodio::{source::Source, Decoder, OutputStream};
+use std::fs;
 use std::fs::File;
 use std::io::BufReader;
 use std::thread;
-use rodio::{Decoder, OutputStream, source::Source};
-use image::GenericImageView;
-use std::fs;
 use std::time::{Duration, Instant};
 
-
 fn main() {
-    let fps:f32 = 24.;
+    let fps: f32 = 24.;
     //
     let folder_path = "video/";
     let f: usize = fs::read_dir(folder_path)
         .expect("Failed to read folder.")
         .count();
-    let name="apple-";
-    let format ="png";
-    let color:bool = true;
-    let divider = 8;
-    let enable_audio=true;
-    
-    if enable_audio{
-        let audio_play = thread::spawn(move||{
-            let time = f as f32*fps;
+    let name = "apple-";
+    let format = "png";
+    let color: bool = true;
+    let divider = 9;
+    let enable_audio = true;
+
+    if enable_audio {
+        let _audio_play = thread::spawn(move || {
+            let time = f as f32 / fps;
             //Audio code, comment out if you dont want audio
             let (_stream, stream_handle) = OutputStream::try_default().unwrap();
             let file = BufReader::new(File::open("audio.mp3").unwrap());
@@ -31,10 +30,10 @@ fn main() {
             thread::sleep(Duration::from_secs(time as u64));
         });
     }
- 
+
     let start = Instant::now();
-    let n:u64 = (1000000. /fps as f32) as u64; // loop every n micros
-    
+    let n: u64 = (1000000. / fps as f32) as u64; // loop every n micros
+
     for frame in 1..f {
         //if we are supposed to be in the next frame, just skip this one
         if start.elapsed().as_micros() > (((frame as u128) + 1) * n as u128) {
@@ -59,10 +58,9 @@ fn main() {
 
                 // Do something with the RGB values
                 //println!("Pixel at ({}, {}) has RGB values ({}, {}, {})", x, y, r, g, b);
-                if color{
-                    
+                if color {
                     print!("\x1B[38;2;{};{};{}m█", r, g, b);
-                }else{
+                } else {
                     let pixel_bw: u8 = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
                     match pixel_bw {
                         0..=42 => print!(" "),
@@ -79,20 +77,20 @@ fn main() {
         }
         //println!("{}",frame);
         // Calculate the time it took to execute the code inside the loop
-       // Calculate the target execution time for this iteration
-       let target_time = start + Duration::from_micros(frame as u64 * n as u64);
+        // Calculate the target execution time for this iteration
+        let target_time = start + Duration::from_micros(frame as u64 * n as u64);
 
-       // Get the current time
-       let current_time = Instant::now();
+        // Get the current time
+        let current_time = Instant::now();
 
-       // Check if we need to sleep or if we're already behind schedule
-       if target_time > current_time {
-           // Calculate the duration to sleep to reach the target time
-           let sleep_duration = target_time - current_time;
+        // Check if we need to sleep or if we're already behind schedule
+        if target_time > current_time {
+            // Calculate the duration to sleep to reach the target time
+            let sleep_duration = target_time - current_time;
 
-           // Sleep until the target time
-           thread::sleep(sleep_duration);
-       }
+            // Sleep until the target time
+            thread::sleep(sleep_duration);
+        }
     }
     print!("\x1B[0m");
 }
