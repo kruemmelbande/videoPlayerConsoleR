@@ -75,7 +75,7 @@ fn main() {
         let terminal_size = term_size::dimensions().unwrap();
         let terminal_width = terminal_size.0 as u32;
         let terminal_height = terminal_size.1 as u32;
-        let float_divider = calculate_divider(terminal_width-1, terminal_height-1, width*aspectratiocorrection, height);
+        let float_divider = calculate_divider(terminal_width-1, terminal_height-1, (width as f32*aspectratiocorrection).floor() as u32, height);
         if float_divider != last_divider {
             clear_console();
             last_divider = float_divider;
