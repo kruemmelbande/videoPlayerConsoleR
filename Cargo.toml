@@ -7,4 +7,6 @@ edition = "2021"
 
 [dependencies]
 image = "0.23.14"
+term_size = "0.3.0"
 rodio = "0.17.1"
+console = "0.14.1"
