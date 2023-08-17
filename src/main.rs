@@ -25,6 +25,7 @@ fn calculate_divider(terminal_width: u32, terminal_height: u32, image_width: u32
 }
 
 fn main() {
+    
     let fps: f32 = 24.;
     //
     let folder_path = "video/";
@@ -74,7 +75,7 @@ fn main() {
         let terminal_size = term_size::dimensions().unwrap();
         let terminal_width = terminal_size.0 as u32;
         let terminal_height = terminal_size.1 as u32;
-        let float_divider = calculate_divider(terminal_width-1, terminal_height-1, width*2, height);
+        let float_divider = calculate_divider(terminal_width-1, terminal_height-1, width*aspectratiocorrection, height);
         if float_divider != last_divider {
             clear_console();
             last_divider = float_divider;
