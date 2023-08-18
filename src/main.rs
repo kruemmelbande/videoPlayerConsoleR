@@ -9,6 +9,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 use std::io::Write;
 use console::Term;
+use rand::Rng;
 
 fn clear_console() {
     let term = Term::stdout();
@@ -35,9 +36,12 @@ fn main() {
     let name = "apple-";
     let format = "png";
     let color: u32 = 0;
+    let mut rng=rand::thread_rng();
     //for full color, use 0 (looks best)
     //for ascii, use 1 (runs best on windows terminal)
     //for grayscale blocks, use 2 (runs terrible on windows terminal, might run as well as 1 on conhost or other terminals)
+    //3 is the same as 2 but with dithering
+    // 4 is the same as 1 but with dithering
     //let divider = 9;
     let enable_audio = true;
    
@@ -106,7 +110,7 @@ fn main() {
                         211..=252 => print!("*"),
                         253..=255 => print!("#")
                     }
-                } else {
+                } else if color == 2{
                     let pixel_bw = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
                     match pixel_bw {
                         0..=42 => print!(" "),
@@ -115,6 +119,38 @@ fn main() {
                         129..=170 => print!("▓"),
                         171..=255 => print!("█")
 
+                    }
+                } else if color == 3{
+                    let mut pixel_bw = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
+                    let dither_ammount = 40;
+                    if pixel_bw < 255-dither_ammount && pixel_bw>dither_ammount{
+                        pixel_bw -= dither_ammount;
+                        pixel_bw += rng.gen_range(0..=dither_ammount*2);
+                    }
+                    match pixel_bw {
+                        0..=42 => print!(" "),
+                        43..=85 => print!("░"),
+                        86..=128 => print!("▒"),
+                        129..=170 => print!("▓"),
+                        171..=255 => print!("█")
+
+                    }
+                } else{
+                    let mut pixel_bw: u8 = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
+                    let dither_ammount: u8 = 20;
+                    if pixel_bw < 255-dither_ammount && pixel_bw>dither_ammount{
+                        pixel_bw -= dither_ammount;
+                        pixel_bw += rng.gen_range(0..=dither_ammount*2);
+                    }
+                    match pixel_bw {
+                        0..=15 => print!(" "),
+                        16..=42 => print!("."),
+                        43..=84 => print!(","),
+                        85..=126 => print!("-"),
+                        127..=168 => print!("="),
+                        169..=210 => print!("+"),
+                        211..=252 => print!("*"),
+                        253..=255 => print!("#")
                     }
                 }
             }
