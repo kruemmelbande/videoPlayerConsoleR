@@ -11,6 +11,7 @@ use std::io::Write;
 use console::Term;
 use rand::Rng;
 
+
 fn clear_console() {
     let term = Term::stdout();
     term.clear_screen().unwrap();
@@ -44,7 +45,8 @@ fn main() {
     // 4 is the same as 1 but with dithering
     //let divider = 9;
     let enable_audio = true;
-   
+
+    let mut stdout = std::io::stdout();
     let _stream: OutputStream;
     let stream_handle: OutputStreamHandle;
     let file: BufReader<File>;
@@ -61,6 +63,7 @@ fn main() {
     let mut frames_skip: u64 = 0;
     let mut last_divider: f32 = 0.;
     for frame in 1..f {
+        let mut lock = stdout.lock();
         //if we are supposed to be in the next frame, just skip this one
         if start.elapsed().as_micros() > (((frame as u128) + 1) * n as u128) {
             frames_skip += 1;
@@ -97,27 +100,27 @@ fn main() {
                 let (r, g, b) = (pixel[0], pixel[1], pixel[2]);
                 if color == 0  {
                     let img_string = format!("\x1B[48;2;{r};{g};{b}m ", r = r, g = g, b = b);
-                    print!("{}", img_string);
+                    write!(lock,"{}", img_string);
                 } else if color == 1 {
                     let pixel_bw: u8 = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
                     match pixel_bw {
-                        0..=15 => print!(" "),
-                        16..=42 => print!("."),
-                        43..=84 => print!(","),
-                        85..=126 => print!("-"),
-                        127..=168 => print!("="),
-                        169..=210 => print!("+"),
-                        211..=252 => print!("*"),
-                        253..=255 => print!("#")
+                        0..=15 => write!(lock," ").expect("error writing to stdout"),
+                        16..=42 => write!(lock,".").expect("error writing to stdout"),
+                        43..=84 => write!(lock,",").expect("error writing to stdout"),
+                        85..=126 => write!(lock,"-").expect("error writing to stdout"),
+                        127..=168 => write!(lock,"=").expect("error writing to stdout"),
+                        169..=210 => write!(lock,"+").expect("error writing to stdout"),
+                        211..=252 => write!(lock,"*").expect("error writing to stdout"),
+                        253..=255 => write!(lock,"#").expect("error writing to stdout")
                     }
                 } else if color == 2{
                     let pixel_bw = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
                     match pixel_bw {
-                        0..=42 => print!(" "),
-                        43..=85 => print!("░"),
-                        86..=128 => print!("▒"),
-                        129..=170 => print!("▓"),
-                        171..=255 => print!("█")
+                        0..=42 => write!(lock," ").expect("error writing to stdout"),
+                        43..=85 => write!(lock,"░").expect("error writing to stdout"),
+                        86..=128 => write!(lock,"▒").expect("error writing to stdout"),
+                        129..=170 => write!(lock,"▓").expect("error writing to stdout"),
+                        171..=255 => write!(lock,"█").expect("error writing to stdout")
 
                     }
                 } else if color == 3{
@@ -128,11 +131,11 @@ fn main() {
                         pixel_bw += rng.gen_range(0..=dither_ammount*2);
                     }
                     match pixel_bw {
-                        0..=42 => print!(" "),
-                        43..=85 => print!("░"),
-                        86..=128 => print!("▒"),
-                        129..=170 => print!("▓"),
-                        171..=255 => print!("█")
+                        0..=42 => write!(lock," ").expect("error writing to stdout"),
+                        43..=85 => write!(lock,"░").expect("error writing to stdout"),
+                        86..=128 => write!(lock,"▒").expect("error writing to stdout"),
+                        129..=170 => write!(lock,"▓").expect("error writing to stdout"),
+                        171..=255 => write!(lock,"█").expect("error writing to stdout")
 
                     }
                 } else{
@@ -143,18 +146,18 @@ fn main() {
                         pixel_bw += rng.gen_range(0..=dither_ammount*2);
                     }
                     match pixel_bw {
-                        0..=15 => print!(" "),
-                        16..=42 => print!("."),
-                        43..=84 => print!(","),
-                        85..=126 => print!("-"),
-                        127..=168 => print!("="),
-                        169..=210 => print!("+"),
-                        211..=252 => print!("*"),
-                        253..=255 => print!("#")
+                        0..=15 => write!(lock," ").expect("error writing to stdout"),
+                        16..=42 => write!(lock,".").expect("error writing to stdout"),
+                        43..=84 => write!(lock,",").expect("error writing to stdout"),
+                        85..=126 => write!(lock,"-").expect("error writing to stdout"),
+                        127..=168 => write!(lock,"=").expect("error writing to stdout"),
+                        169..=210 => write!(lock,"+").expect("error writing to stdout"),
+                        211..=252 => write!(lock,"*").expect("error writing to stdout"),
+                        253..=255 => write!(lock,"#").expect("error writing to stdout")
                     }
                 }
             }
-            println!("");
+            write!(lock,"\n").expect("error writing to stdout");
         }
 
         std::io::stdout().flush().unwrap();
