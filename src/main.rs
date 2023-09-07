@@ -63,7 +63,7 @@ fn main() {
     let mut frames_skip: u64 = 0;
     let mut last_divider: f32 = 0.;
     for frame in 1..f {
-        let mut lock = stdout.lock();
+        
         //if we are supposed to be in the next frame, just skip this one
         if start.elapsed().as_micros() > (((frame as u128) + 1) * n as u128) {
             frames_skip += 1;
@@ -92,38 +92,69 @@ fn main() {
         let mut pos_x: u32;
         let mut pos_y: u32;
         // Loop through each pixel in the image
-        for y in 0..new_height{
-            for x in 0..new_width{
-                pos_x = (x as f32 * float_divider / aspectratiocorrection ) as u32;
-                pos_y = (y as f32 * float_divider) as u32;
-                let pixel = img.get_pixel(pos_x, pos_y);
-                let (r, g, b) = (pixel[0], pixel[1], pixel[2]);
-                if color == 0  {
-                    let img_string = format!("\x1B[48;2;{r};{g};{b}m ", r = r, g = g, b = b);
-                    write!(lock,"{}", img_string);
-                } else if color == 1 {
+
+        let mut lock = stdout.lock();
+        if color == 0 {
+            for y in 0..new_height{
+                for x in 0..new_width{
+                    pos_x = (x as f32 * float_divider / aspectratiocorrection ) as u32;
+                    pos_y = (y as f32 * float_divider) as u32;
+                    let pixel = img.get_pixel(pos_x, pos_y);
+                    let (r, g, b) = (pixel[0], pixel[1], pixel[2]);
+                    if color == 0  {
+                        let img_string = format!("\x1B[48;2;{r};{g};{b}m ", r = r, g = g, b = b);
+                        write!(lock,"{}", img_string).unwrap();
+                    }
+                }
+                write!(lock,"\n").unwrap();
+            }
+        }else if color == 1 {
+            for y in 0..new_height{
+                for x in 0..new_width{
+                    pos_x = (x as f32 * float_divider / aspectratiocorrection ) as u32;
+                    pos_y = (y as f32 * float_divider) as u32;
+                    let pixel = img.get_pixel(pos_x, pos_y);
+                    let (r, g, b) = (pixel[0], pixel[1], pixel[2]);
                     let pixel_bw: u8 = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
                     match pixel_bw {
-                        0..=15 => write!(lock," ").expect("error writing to stdout"),
-                        16..=42 => write!(lock,".").expect("error writing to stdout"),
-                        43..=84 => write!(lock,",").expect("error writing to stdout"),
-                        85..=126 => write!(lock,"-").expect("error writing to stdout"),
-                        127..=168 => write!(lock,"=").expect("error writing to stdout"),
-                        169..=210 => write!(lock,"+").expect("error writing to stdout"),
-                        211..=252 => write!(lock,"*").expect("error writing to stdout"),
-                        253..=255 => write!(lock,"#").expect("error writing to stdout")
+                        0..=15 => write!(lock," ").unwrap(),
+                        16..=42 => write!(lock,".").unwrap(),
+                        43..=84 => write!(lock,",").unwrap(),
+                        85..=126 => write!(lock,"-").unwrap(),
+                        127..=168 => write!(lock,"=").unwrap(),
+                        169..=210 => write!(lock,"+").unwrap(),
+                        211..=252 => write!(lock,"*").unwrap(),
+                        253..=255 => write!(lock,"#").unwrap() 
                     }
-                } else if color == 2{
+                }
+                write!(lock,"\n").unwrap();
+            }   
+        }else if color == 2 {
+            for y in 0..new_height{
+                for x in 0..new_width{
+                    pos_x = (x as f32 * float_divider / aspectratiocorrection ) as u32;
+                    pos_y = (y as f32 * float_divider) as u32;
+                    let pixel = img.get_pixel(pos_x, pos_y);
+                    let (r, g, b) = (pixel[0], pixel[1], pixel[2]);
                     let pixel_bw = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
                     match pixel_bw {
-                        0..=42 => write!(lock," ").expect("error writing to stdout"),
-                        43..=85 => write!(lock,"░").expect("error writing to stdout"),
-                        86..=128 => write!(lock,"▒").expect("error writing to stdout"),
-                        129..=170 => write!(lock,"▓").expect("error writing to stdout"),
-                        171..=255 => write!(lock,"█").expect("error writing to stdout")
-
+                        0..=42 => write!(lock," ").unwrap(),
+                        43..=85 => write!(lock,"░").unwrap(),
+                        86..=128 => write!(lock,"▒").unwrap(),
+                        129..=170 => write!(lock,"▓").unwrap(),
+                        171..=255 => write!(lock,"█").unwrap()
                     }
-                } else if color == 3{
+                }
+                write!(lock,"\n").unwrap();
+            }
+        }else if color == 3 {
+            for y in 0..new_height{
+                for x in 0..new_width{
+                    pos_x = (x as f32 * float_divider / aspectratiocorrection ) as u32;
+                    pos_y = (y as f32 * float_divider) as u32;
+                    let pixel = img.get_pixel(pos_x, pos_y);
+                    let (r, g, b) = (pixel[0], pixel[1], pixel[2]);
+                    
                     let mut pixel_bw = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
                     let dither_ammount = 40;
                     if pixel_bw < 255-dither_ammount && pixel_bw>dither_ammount{
@@ -131,14 +162,24 @@ fn main() {
                         pixel_bw += rng.gen_range(0..=dither_ammount*2);
                     }
                     match pixel_bw {
-                        0..=42 => write!(lock," ").expect("error writing to stdout"),
-                        43..=85 => write!(lock,"░").expect("error writing to stdout"),
-                        86..=128 => write!(lock,"▒").expect("error writing to stdout"),
-                        129..=170 => write!(lock,"▓").expect("error writing to stdout"),
-                        171..=255 => write!(lock,"█").expect("error writing to stdout")
+                        0..=42 => write!(lock," ").unwrap(),
+                        43..=85 => write!(lock,"░").unwrap(),
+                        86..=128 => write!(lock,"▒").unwrap(),
+                        129..=170 => write!(lock,"▓").unwrap(),
+                        171..=255 => write!(lock,"█").unwrap()
 
                     }
-                } else{
+                } 
+                write!(lock,"\n").unwrap();
+            }
+        }else{
+            for y in 0..new_height{
+                for x in 0..new_width{
+                    pos_x = (x as f32 * float_divider / aspectratiocorrection ) as u32;
+                    pos_y = (y as f32 * float_divider) as u32;
+                    let pixel = img.get_pixel(pos_x, pos_y);
+                    let (r, g, b) = (pixel[0], pixel[1], pixel[2]);
+
                     let mut pixel_bw: u8 = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
                     let dither_ammount: u8 = 20;
                     if pixel_bw < 255-dither_ammount && pixel_bw>dither_ammount{
@@ -146,21 +187,21 @@ fn main() {
                         pixel_bw += rng.gen_range(0..=dither_ammount*2);
                     }
                     match pixel_bw {
-                        0..=15 => write!(lock," ").expect("error writing to stdout"),
-                        16..=42 => write!(lock,".").expect("error writing to stdout"),
-                        43..=84 => write!(lock,",").expect("error writing to stdout"),
-                        85..=126 => write!(lock,"-").expect("error writing to stdout"),
-                        127..=168 => write!(lock,"=").expect("error writing to stdout"),
-                        169..=210 => write!(lock,"+").expect("error writing to stdout"),
-                        211..=252 => write!(lock,"*").expect("error writing to stdout"),
-                        253..=255 => write!(lock,"#").expect("error writing to stdout")
+                        0..=15 => write!(lock," ").unwrap(),
+                        16..=42 => write!(lock,".").unwrap(),
+                        43..=84 => write!(lock,",").unwrap(),
+                        85..=126 => write!(lock,"-").unwrap(),
+                        127..=168 => write!(lock,"=").unwrap(),
+                        169..=210 => write!(lock,"+").unwrap(),
+                        211..=252 => write!(lock,"*").unwrap(),
+                        253..=255 => write!(lock,"#").unwrap()
                     }
-                }
+                } 
+                write!(lock,"\n").unwrap();
             }
-            write!(lock,"\n").expect("error writing to stdout");
         }
-
         std::io::stdout().flush().unwrap();
+
         //println!("{}",frame);
         // Calculate the time it took to execute the code inside the loop
         // Calculate the target execution time for this iteration
@@ -171,11 +212,11 @@ fn main() {
 
         // Check if we need to sleep or if we're already behind schedule
         if target_time > current_time {
-            // Calculate the duration to sleep to reach the target time
-            let sleep_duration = target_time - current_time;
+                // Calculate the duration to sleep to reach the target time
+                let sleep_duration = target_time - current_time;
 
-            // Sleep until the target time
-            thread::sleep(sleep_duration);
+                // Sleep until the target time
+                thread::sleep(sleep_duration);
         }
     }
     print!("\x1B[0m");
