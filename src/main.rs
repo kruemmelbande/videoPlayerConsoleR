@@ -1,16 +1,14 @@
 use console::Term;
 use image::GenericImageView;
 use rand::Rng;
-use rodio::OutputStreamHandle;
-use rodio::{source::Source, Decoder, OutputStream};
-use std::fs::File;
-use std::io::BufReader;
-use std::io::Write;
-// use std::os::unix::process;
-use std::process;
-use std::thread;
-use std::time::{Duration, Instant};
-use std::{env, fs};
+use rodio::{source::Source, Decoder, OutputStream, OutputStreamHandle};
+use std::{
+    env, fs,
+    fs::File,
+    io::{BufReader, Write},
+    process, thread,
+    time::{Duration, Instant},
+};
 use term_size;
 
 fn clear_console() {
