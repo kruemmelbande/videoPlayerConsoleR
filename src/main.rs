@@ -39,7 +39,7 @@ fn main() {
         .count();
     let name = "apple-";
     let format = "png";
-    let color: u8 = 0;
+    let color: u8 = 4;
     let mut rng = rand::thread_rng();
     //for full color, use 0 (looks best)
     //for ascii, use 1 (runs best on windows terminal)
@@ -161,6 +161,24 @@ fn main() {
                         129..=170 => write!(lock, "▓").expect("error writing to stdout"),
                         171..=255 => write!(lock, "█").expect("error writing to stdout"),
                     }
+                } else if color == 4 {
+                    let img_string: String;
+
+                    let col_div: u8 = 10;
+
+                    let fr = ((r / col_div) as f32).floor() as u8 * col_div;
+                    let fg = ((g / col_div) as f32).floor() as u8 * col_div;
+                    let fb = ((b / col_div) as f32).floor() as u8 * col_div;
+
+                    if old_r == fr && old_b == fb && old_g == fg {
+                        img_string = " ".to_string();
+                    } else {
+                        img_string = format!("\x1B[48;2;{r};{g};{b}m ", r = fr, g = fg, b = fb);
+                    }
+
+                    (old_r, old_g, old_b) = (fr, fg, fb);
+
+                    write!(lock, "{}", img_string).expect("error writing to stdout");
                 } else {
                     let mut pixel_bw: u8 =
                         ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
