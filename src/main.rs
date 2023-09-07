@@ -176,9 +176,9 @@ fn main() {
 
                     let col_div: u8 = 10;
 
-                    let fr = ((r / col_div) as f32).floor() as u8 * col_div;
-                    let fg = ((g / col_div) as f32).floor() as u8 * col_div;
-                    let fb = ((b / col_div) as f32).floor() as u8 * col_div;
+                    let fr = (r + col_div / 2) / col_div * col_div;
+                    let fg = (g + col_div / 2) / col_div * col_div;
+                    let fb = (b + col_div / 2) / col_div * col_div;
 
                     if old_r == fr && old_b == fb && old_g == fg {
                         img_string = " ".to_string();
