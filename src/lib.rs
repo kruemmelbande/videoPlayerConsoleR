@@ -24,4 +24,5 @@ pub struct VideoOptions {
     pub fps: f32,
     pub color_mode: u8,
     pub audio: bool,
+    pub mode_option: u8,
 }

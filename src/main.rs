@@ -17,20 +17,22 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let options: VideoOptions;
 
-    if args.len() == 4 {
+    if args.len() == 5 {
         options = VideoOptions {
             fps: args[1].parse().expect("That isnt a valid fps"),
             color_mode: args[2].parse().expect("That isnt a valid color mode"),
             audio: args[3].parse().expect("That isnt a valid audio mode"),
+            mode_option: args[4].parse().expect("That isnt a valid mode option"),
         };
     } else if args.len() == 1 {
         options = VideoOptions {
             fps: 25.,
             color_mode: 0,
             audio: true,
+            mode_option: 10,
         };
     } else {
-        eprintln!("Options must be: <fps count> <color mode> <audio toggle>");
+        eprintln!("Options must be: <fps count> <color mode> <audio toggle> <mode optionoptions.mode_option>");
         process::exit(1);
     }
 
@@ -100,7 +102,7 @@ fn main() {
                 pixel_string = match options.color_mode {
                     0 => modes::true_color(&pixel, &old_pixel),
                     1 => {
-                        let col_div = 10;
+                        let col_div = options.mode_option;
 
                         pixel = Rgba([
                             (pixel[0] + col_div / 2) / col_div * col_div,
@@ -112,9 +114,9 @@ fn main() {
                         modes::true_color(&pixel, &old_pixel)
                     }
                     2 => modes::ascii(modes::get_pixel_bw(&pixel)),
-                    3 => modes::ascii(modes::get_dither(&pixel, 20, &mut rng)),
+                    3 => modes::ascii(modes::get_dither(&pixel, options.mode_option, &mut rng)),
                     4 => modes::block(modes::get_pixel_bw(&pixel)),
-                    5 => modes::block(modes::get_dither(&pixel, 40, &mut rng)),
+                    5 => modes::block(modes::get_dither(&pixel, options.mode_option, &mut rng)),
                     _ => modes::true_color(&pixel, &old_pixel),
                 };
 
