@@ -1,6 +1,4 @@
-use console::Term;
 use image::{GenericImageView, Rgba};
-use rand::Rng;
 use rodio::{source::Source, Decoder, OutputStream, OutputStreamHandle};
 use std::{
     env, fs,
@@ -11,31 +9,9 @@ use std::{
 };
 use term_size;
 
-fn clear_console() {
-    let term = Term::stdout();
-    term.clear_screen().unwrap();
-}
+mod modes;
 
-fn calculate_divider(
-    terminal_width: u32,
-    terminal_height: u32,
-    image_width: u32,
-    image_height: u32,
-) -> f32 {
-    let aspect_ratio = (image_width as f32) / (image_height as f32);
-    let terminal_aspect_ratio = (terminal_width as f32) / (terminal_height as f32);
-    if aspect_ratio > terminal_aspect_ratio {
-        (image_width as f32) / (terminal_width as f32)
-    } else {
-        (image_height as f32) / (terminal_height as f32)
-    }
-}
-
-struct VideoOptions {
-    fps: f32,
-    color_mode: u8,
-    audio: bool,
-}
+use video_player_console_r::{calculate_divider, clear_console, VideoOptions};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -80,7 +56,7 @@ fn main() {
     let mut frames_skip: u64 = 0;
     let mut last_divider: f32 = 0.;
 
-    println!("\x1Bc");
+    clear_console();
 
     for frame in 1..f {
         let mut lock = stdout.lock();
@@ -117,102 +93,36 @@ fn main() {
                 let pos_x = (x as f32 * float_divider / ASPECT_RATIO_CORRECTION) as u32;
                 let pos_y = (y as f32 * float_divider) as u32;
 
-                let pixel = img.get_pixel(pos_x, pos_y);
+                let mut pixel = img.get_pixel(pos_x, pos_y);
+
+                let pixel_string: String;
 
                 if options.color_mode == 0 {
-                    let img_string: String;
-
-                    if old_pixel == pixel {
-                        img_string = " ".to_string();
-                    } else {
-                        img_string = format!("\x1B[48;2;{};{};{}m ", pixel[0], pixel[1], pixel[2]);
-                    }
-
-                    old_pixel = pixel;
-
-                    write!(lock, "{}", img_string).expect("error writing to stdout");
+                    pixel_string = modes::true_color(&pixel, &old_pixel);
                 } else if options.color_mode == 1 {
-                    let pixel_bw: u8 = ((pixel[0] as i16 + pixel[2] as i16 + pixel[1] as i16)
-                        as i16
-                        / 3 as i16) as u8;
-                    match pixel_bw {
-                        0..=15 => write!(lock, " ").expect("error writing to stdout"),
-                        16..=42 => write!(lock, ".").expect("error writing to stdout"),
-                        43..=84 => write!(lock, ",").expect("error writing to stdout"),
-                        85..=126 => write!(lock, "-").expect("error writing to stdout"),
-                        127..=168 => write!(lock, "=").expect("error writing to stdout"),
-                        169..=210 => write!(lock, "+").expect("error writing to stdout"),
-                        211..=252 => write!(lock, "*").expect("error writing to stdout"),
-                        253..=255 => write!(lock, "#").expect("error writing to stdout"),
-                    }
+                    pixel_string = modes::ascii(modes::get_pixel_bw(&pixel));
                 } else if options.color_mode == 2 {
-                    let pixel_bw = ((pixel[0] as i16 + pixel[2] as i16 + pixel[1] as i16) as i16
-                        / 3 as i16) as u8;
-                    match pixel_bw {
-                        0..=42 => write!(lock, " ").expect("error writing to stdout"),
-                        43..=85 => write!(lock, "░").expect("error writing to stdout"),
-                        86..=128 => write!(lock, "▒").expect("error writing to stdout"),
-                        129..=170 => write!(lock, "▓").expect("error writing to stdout"),
-                        171..=255 => write!(lock, "█").expect("error writing to stdout"),
-                    }
+                    pixel_string = modes::block(modes::get_pixel_bw(&pixel));
                 } else if options.color_mode == 3 {
-                    let mut pixel_bw = ((pixel[0] as i16 + pixel[2] as i16 + pixel[1] as i16)
-                        as i16
-                        / 3 as i16) as u8;
-                    let dither_ammount = 40;
-                    if pixel_bw < 255 - dither_ammount && pixel_bw > dither_ammount {
-                        pixel_bw -= dither_ammount;
-                        pixel_bw += rng.gen_range(0..=dither_ammount * 2);
-                    }
-                    match pixel_bw {
-                        0..=42 => write!(lock, " ").expect("error writing to stdout"),
-                        43..=85 => write!(lock, "░").expect("error writing to stdout"),
-                        86..=128 => write!(lock, "▒").expect("error writing to stdout"),
-                        129..=170 => write!(lock, "▓").expect("error writing to stdout"),
-                        171..=255 => write!(lock, "█").expect("error writing to stdout"),
-                    }
+                    pixel_string = modes::block(modes::get_dither(&pixel, 40, &mut rng));
                 } else if options.color_mode == 4 {
-                    let img_string: String;
+                    let col_div = 10;
 
-                    let col_div: u8 = 10;
-
-                    let fpixel: Rgba<u8> = Rgba([
+                    pixel = Rgba([
                         (pixel[0] + col_div / 2) / col_div * col_div,
                         (pixel[1] + col_div / 2) / col_div * col_div,
                         (pixel[2] + col_div / 2) / col_div * col_div,
                         0,
                     ]);
 
-                    if old_pixel == fpixel {
-                        img_string = " ".to_string();
-                    } else {
-                        img_string =
-                            format!("\x1B[48;2;{};{};{}m ", fpixel[0], fpixel[1], fpixel[2]);
-                    }
-
-                    old_pixel = fpixel;
-
-                    write!(lock, "{}", img_string).expect("error writing to stdout");
+                    pixel_string = modes::true_color(&pixel, &old_pixel);
                 } else {
-                    let mut pixel_bw: u8 = ((pixel[0] as i16 + pixel[2] as i16 + pixel[1] as i16)
-                        as i16
-                        / 3 as i16) as u8;
-                    let dither_ammount: u8 = 20;
-                    if pixel_bw < 255 - dither_ammount && pixel_bw > dither_ammount {
-                        pixel_bw -= dither_ammount;
-                        pixel_bw += rng.gen_range(0..=dither_ammount * 2);
-                    }
-                    match pixel_bw {
-                        0..=15 => write!(lock, " ").expect("error writing to stdout"),
-                        16..=42 => write!(lock, ".").expect("error writing to stdout"),
-                        43..=84 => write!(lock, ",").expect("error writing to stdout"),
-                        85..=126 => write!(lock, "-").expect("error writing to stdout"),
-                        127..=168 => write!(lock, "=").expect("error writing to stdout"),
-                        169..=210 => write!(lock, "+").expect("error writing to stdout"),
-                        211..=252 => write!(lock, "*").expect("error writing to stdout"),
-                        253..=255 => write!(lock, "#").expect("error writing to stdout"),
-                    }
+                    pixel_string = modes::ascii(modes::get_dither(&pixel, 20, &mut rng));
                 }
+
+                write!(lock, "{}", pixel_string).expect("error writing to stdout");
+
+                old_pixel = pixel;
             }
             write!(lock, "\n").expect("error writing to stdout");
         }
@@ -229,7 +139,6 @@ fn main() {
         }
     }
 
-    // println!("\x1B[0m");
     println!(
         "\nSkipped {} out of {} frames. ({}%)",
         frames_skip,
