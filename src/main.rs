@@ -3,12 +3,14 @@ use image::GenericImageView;
 use rand::Rng;
 use rodio::OutputStreamHandle;
 use rodio::{source::Source, Decoder, OutputStream};
-use std::fs;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::Write;
+// use std::os::unix::process;
+use std::process;
 use std::thread;
 use std::time::{Duration, Instant};
+use std::{env, fs};
 use term_size;
 
 fn clear_console() {
@@ -30,8 +32,35 @@ fn calculate_divider(
     }
 }
 
+struct VideoOptions {
+    fps: f32,
+    color_mode: u8,
+    audio: bool,
+}
+
 fn main() {
-    let fps: f32 = 25.;
+    let args: Vec<String> = env::args().collect();
+
+    let options: VideoOptions;
+
+    if args.len() == 4 {
+        options = VideoOptions {
+            fps: args[1].parse().expect("That isnt a valid fps"),
+            color_mode: args[2].parse().expect("That isnt a valid color mode"),
+            audio: args[3].parse().expect("That isnt a valid audio mode"),
+        };
+    } else if args.len() == 1 {
+        options = VideoOptions {
+            fps: 25.,
+            color_mode: 0,
+            audio: true,
+        };
+    } else {
+        eprintln!("Options must be: <fps count> <color mode> <audio toggle>");
+        process::exit(1);
+    }
+
+    // let fps: f32 = 25.;
     //
     let folder_path = "video/";
     let f: usize = fs::read_dir(folder_path)
@@ -39,7 +68,7 @@ fn main() {
         .count();
     let name = "apple-";
     let format = "png";
-    let color: u8 = 4;
+    // let color: u8 = 4;
     let mut rng = rand::thread_rng();
     //for full color, use 0 (looks best)
     //for ascii, use 1 (runs best on windows terminal)
@@ -47,14 +76,14 @@ fn main() {
     //3 is the same as 2 but with dithering
     // 4 is the same as 1 but with dithering
     //let divider = 9;
-    let enable_audio = true;
+    // let enable_audio = true;
 
     let stdout = std::io::stdout();
     let _stream: OutputStream;
     let stream_handle: OutputStreamHandle;
     let file: BufReader<File>;
     let source: Decoder<BufReader<File>>;
-    if enable_audio {
+    if options.audio {
         (_stream, stream_handle) = OutputStream::try_default().unwrap();
         file = BufReader::new(File::open("audio.mp3").unwrap());
         source = Decoder::new(file).unwrap();
@@ -62,7 +91,7 @@ fn main() {
     }
 
     let start = Instant::now();
-    let n: u64 = (1000000. / fps as f32) as u64; // loop every n micros
+    let n: u64 = (1000000. / options.fps as f32) as u64; // loop every n micros
 
     println!("\x1Bc");
     let mut frames_skip: u64 = 0;
@@ -115,7 +144,7 @@ fn main() {
                 pos_y = (y as f32 * float_divider) as u32;
                 let pixel = img.get_pixel(pos_x, pos_y);
                 let (r, g, b) = (pixel[0], pixel[1], pixel[2]);
-                if color == 0 {
+                if options.color_mode == 0 {
                     let img_string: String;
                     if old_r == r && old_b == b && old_g == g {
                         img_string = " ".to_string();
@@ -126,7 +155,7 @@ fn main() {
                     (old_r, old_g, old_b) = (r, g, b);
 
                     write!(lock, "{}", img_string).expect("error writing to stdout");
-                } else if color == 1 {
+                } else if options.color_mode == 1 {
                     let pixel_bw: u8 = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
                     match pixel_bw {
                         0..=15 => write!(lock, " ").expect("error writing to stdout"),
@@ -138,7 +167,7 @@ fn main() {
                         211..=252 => write!(lock, "*").expect("error writing to stdout"),
                         253..=255 => write!(lock, "#").expect("error writing to stdout"),
                     }
-                } else if color == 2 {
+                } else if options.color_mode == 2 {
                     let pixel_bw = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
                     match pixel_bw {
                         0..=42 => write!(lock, " ").expect("error writing to stdout"),
@@ -147,7 +176,7 @@ fn main() {
                         129..=170 => write!(lock, "▓").expect("error writing to stdout"),
                         171..=255 => write!(lock, "█").expect("error writing to stdout"),
                     }
-                } else if color == 3 {
+                } else if options.color_mode == 3 {
                     let mut pixel_bw = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
                     let dither_ammount = 40;
                     if pixel_bw < 255 - dither_ammount && pixel_bw > dither_ammount {
@@ -161,7 +190,7 @@ fn main() {
                         129..=170 => write!(lock, "▓").expect("error writing to stdout"),
                         171..=255 => write!(lock, "█").expect("error writing to stdout"),
                     }
-                } else if color == 4 {
+                } else if options.color_mode == 4 {
                     let img_string: String;
 
                     let col_div: u8 = 10;
