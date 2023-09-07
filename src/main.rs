@@ -64,7 +64,7 @@ fn main() {
     let start = Instant::now();
     let n: u64 = (1000000. / fps as f32) as u64; // loop every n micros
 
-    println!("\x1B[2J");
+    println!("\x1Bc");
     let mut frames_skip: u64 = 0;
     let mut last_divider: f32 = 0.;
     for frame in 1..f {
