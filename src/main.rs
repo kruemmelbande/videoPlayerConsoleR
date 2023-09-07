@@ -60,23 +60,13 @@ fn main() {
         process::exit(1);
     }
 
-    // let fps: f32 = 25.;
-    //
     let folder_path = "video/";
     let f: usize = fs::read_dir(folder_path)
         .expect("Failed to read folder.")
         .count();
     let name = "apple-";
     let format = "png";
-    // let color: u8 = 4;
     let mut rng = rand::thread_rng();
-    //for full color, use 0 (looks best)
-    //for ascii, use 1 (runs best on windows terminal)
-    //for grayscale blocks, use 2 (runs terrible on windows terminal, might run as well as 1 on conhost or other terminals)
-    //3 is the same as 2 but with dithering
-    // 4 is the same as 1 but with dithering
-    //let divider = 9;
-    // let enable_audio = true;
 
     let stdout = std::io::stdout();
     let _stream: OutputStream;
@@ -98,23 +88,18 @@ fn main() {
     let mut last_divider: f32 = 0.;
     for frame in 1..f {
         let mut lock = stdout.lock();
-        //if we are supposed to be in the next frame, just skip this one
         if start.elapsed().as_micros() > (((frame as u128) + 1) * n as u128) {
             frames_skip += 1;
             continue;
         }
-        // Open the image file
         let path: String = format!("{folder_path}/{name}{:0width$}.{format}", frame, width = 5);
-        //println!("{}", path );
         let img = image::open(path).expect(
             "The image has not been found in the specified path, or under the specified name.",
         );
-        // Get the dimensions of the image
         let (width, height) = img.dimensions();
         print!("\x1B[H");
         let aspectratiocorrection: f32 = 2.; //because of non square characters, we assume that the image is twice as tall as it is wide
 
-        //get terminal size
         let terminal_size = term_size::dimensions().unwrap();
         let terminal_width = terminal_size.0 as u32;
         let terminal_height = terminal_size.1 as u32;
@@ -137,7 +122,6 @@ fn main() {
         let mut old_g: u8 = 0;
         let mut old_b: u8 = 0;
 
-        // Loop through each pixel in the image
         for y in 0..new_height {
             for x in 0..new_width {
                 pos_x = (x as f32 * float_divider / aspectratiocorrection) as u32;
@@ -232,20 +216,13 @@ fn main() {
         }
 
         std::io::stdout().flush().unwrap();
-        //println!("{}",frame);
-        // Calculate the time it took to execute the code inside the loop
-        // Calculate the target execution time for this iteration
         let target_time = start + Duration::from_micros(frame as u64 * n as u64);
 
-        // Get the current time
         let current_time = Instant::now();
 
-        // Check if we need to sleep or if we're already behind schedule
         if target_time > current_time {
-            // Calculate the duration to sleep to reach the target time
             let sleep_duration = target_time - current_time;
 
-            // Sleep until the target time
             thread::sleep(sleep_duration);
         }
     }
