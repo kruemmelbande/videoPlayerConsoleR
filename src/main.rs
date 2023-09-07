@@ -15,6 +15,7 @@ fn clear_console() {
     let term = Term::stdout();
     term.clear_screen().unwrap();
 }
+
 fn calculate_divider(
     terminal_width: u32,
     terminal_height: u32,
@@ -38,7 +39,6 @@ struct VideoOptions {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-
     let options: VideoOptions;
 
     if args.len() == 4 {
@@ -69,12 +69,11 @@ fn main() {
     let stdout = std::io::stdout();
     let _stream: OutputStream;
     let stream_handle: OutputStreamHandle;
-    let file: BufReader<File>;
-    let source: Decoder<BufReader<File>>;
+
     if options.audio {
         (_stream, stream_handle) = OutputStream::try_default().unwrap();
-        file = BufReader::new(File::open("audio.mp3").unwrap());
-        source = Decoder::new(file).unwrap();
+        let file = BufReader::new(File::open("audio.mp3").unwrap());
+        let source = Decoder::new(file).unwrap();
         stream_handle.play_raw(source.convert_samples()).ok();
     }
 
@@ -96,7 +95,7 @@ fn main() {
         );
         let (width, height) = img.dimensions();
         print!("\x1B[H");
-        let aspectratiocorrection: f32 = 2.; //because of non square characters, we assume that the image is twice as tall as it is wide
+        let aspect_ratio_correction: f32 = 2.; //because of non square characters, we assume that the image is twice as tall as it is wide
 
         let terminal_size = term_size::dimensions().unwrap();
         let terminal_width = terminal_size.0 as u32;
@@ -104,7 +103,7 @@ fn main() {
         let float_divider = calculate_divider(
             terminal_width - 1,
             terminal_height - 1,
-            (width as f32 * aspectratiocorrection).floor() as u32,
+            (width as f32 * aspect_ratio_correction).floor() as u32,
             height,
         );
         if float_divider != last_divider {
@@ -112,7 +111,7 @@ fn main() {
             last_divider = float_divider;
         }
         let new_height = (height as f32 / float_divider).floor() as u32;
-        let new_width = ((width as f32 / float_divider).floor() * aspectratiocorrection) as u32;
+        let new_width = ((width as f32 / float_divider).floor() * aspect_ratio_correction) as u32;
         let mut pos_x: u32;
         let mut pos_y: u32;
 
@@ -122,7 +121,7 @@ fn main() {
 
         for y in 0..new_height {
             for x in 0..new_width {
-                pos_x = (x as f32 * float_divider / aspectratiocorrection) as u32;
+                pos_x = (x as f32 * float_divider / aspect_ratio_correction) as u32;
                 pos_y = (y as f32 * float_divider) as u32;
                 let pixel = img.get_pixel(pos_x, pos_y);
                 let (r, g, b) = (pixel[0], pixel[1], pixel[2]);
