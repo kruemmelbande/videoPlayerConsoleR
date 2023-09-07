@@ -39,7 +39,7 @@ fn main() {
         .count();
     let name = "apple-";
     let format = "png";
-    let color: u32 = 0;
+    let color: u8 = 0;
     let mut rng = rand::thread_rng();
     //for full color, use 0 (looks best)
     //for ascii, use 1 (runs best on windows terminal)
@@ -49,7 +49,7 @@ fn main() {
     //let divider = 9;
     let enable_audio = true;
 
-    let mut stdout = std::io::stdout();
+    let stdout = std::io::stdout();
     let _stream: OutputStream;
     let stream_handle: OutputStreamHandle;
     let file: BufReader<File>;
@@ -125,7 +125,7 @@ fn main() {
 
                     (old_r, old_g, old_b) = (r, g, b);
 
-                    write!(lock, "{}", img_string);
+                    write!(lock, "{}", img_string).expect("error writing to stdout");
                 } else if color == 1 {
                     let pixel_bw: u8 = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
                     match pixel_bw {
