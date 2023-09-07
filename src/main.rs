@@ -31,7 +31,7 @@ fn calculate_divider(
 }
 
 fn main() {
-    let fps: f32 = 24.;
+    let fps: f32 = 25.;
     //
     let folder_path = "video/";
     let f: usize = fs::read_dir(folder_path)
@@ -103,6 +103,11 @@ fn main() {
         let new_width = ((width as f32 / float_divider).floor() * aspectratiocorrection) as u32;
         let mut pos_x: u32;
         let mut pos_y: u32;
+
+        let mut old_r: u8 = 0;
+        let mut old_g: u8 = 0;
+        let mut old_b: u8 = 0;
+
         // Loop through each pixel in the image
         for y in 0..new_height {
             for x in 0..new_width {
@@ -111,7 +116,15 @@ fn main() {
                 let pixel = img.get_pixel(pos_x, pos_y);
                 let (r, g, b) = (pixel[0], pixel[1], pixel[2]);
                 if color == 0 {
-                    let img_string = format!("\x1B[48;2;{r};{g};{b}m ", r = r, g = g, b = b);
+                    let img_string: String;
+                    if old_r == r && old_b == b && old_g == g {
+                        img_string = " ".to_string();
+                    } else {
+                        img_string = format!("\x1B[48;2;{r};{g};{b}m ", r = r, g = g, b = b);
+                    }
+
+                    (old_r, old_g, old_b) = (r, g, b);
+
                     write!(lock, "{}", img_string);
                 } else if color == 1 {
                     let pixel_bw: u8 = ((r as i16 + b as i16 + g as i16) as i16 / 3 as i16) as u8;
