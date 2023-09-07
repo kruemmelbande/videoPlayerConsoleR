@@ -97,28 +97,26 @@ fn main() {
 
                 let pixel_string: String;
 
-                if options.color_mode == 0 {
-                    pixel_string = modes::true_color(&pixel, &old_pixel);
-                } else if options.color_mode == 1 {
-                    pixel_string = modes::ascii(modes::get_pixel_bw(&pixel));
-                } else if options.color_mode == 2 {
-                    pixel_string = modes::block(modes::get_pixel_bw(&pixel));
-                } else if options.color_mode == 3 {
-                    pixel_string = modes::block(modes::get_dither(&pixel, 40, &mut rng));
-                } else if options.color_mode == 4 {
-                    let col_div = 10;
+                pixel_string = match options.color_mode {
+                    0 => modes::true_color(&pixel, &old_pixel),
+                    1 => {
+                        let col_div = 10;
 
-                    pixel = Rgba([
-                        (pixel[0] + col_div / 2) / col_div * col_div,
-                        (pixel[1] + col_div / 2) / col_div * col_div,
-                        (pixel[2] + col_div / 2) / col_div * col_div,
-                        0,
-                    ]);
+                        pixel = Rgba([
+                            (pixel[0] + col_div / 2) / col_div * col_div,
+                            (pixel[1] + col_div / 2) / col_div * col_div,
+                            (pixel[2] + col_div / 2) / col_div * col_div,
+                            0,
+                        ]);
 
-                    pixel_string = modes::true_color(&pixel, &old_pixel);
-                } else {
-                    pixel_string = modes::ascii(modes::get_dither(&pixel, 20, &mut rng));
-                }
+                        modes::true_color(&pixel, &old_pixel)
+                    }
+                    2 => modes::ascii(modes::get_pixel_bw(&pixel)),
+                    3 => modes::ascii(modes::get_dither(&pixel, 20, &mut rng)),
+                    4 => modes::block(modes::get_pixel_bw(&pixel)),
+                    5 => modes::block(modes::get_dither(&pixel, 40, &mut rng)),
+                    _ => modes::true_color(&pixel, &old_pixel),
+                };
 
                 write!(lock, "{}", pixel_string).expect("error writing to stdout");
 
