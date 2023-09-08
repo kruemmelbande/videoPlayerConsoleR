@@ -102,12 +102,15 @@ fn main() {
                 pixel_string = match options.color_mode {
                     0 => modes::true_color(&pixel, &old_pixel),
                     1 => {
-                        let col_div = options.mode_option;
+                        let calc_col = |x: u8| {
+                            (x + options.mode_option / 2) / options.mode_option
+                                * options.mode_option
+                        };
 
                         pixel = Rgba([
-                            (pixel[0] + col_div / 2) / col_div * col_div,
-                            (pixel[1] + col_div / 2) / col_div * col_div,
-                            (pixel[2] + col_div / 2) / col_div * col_div,
+                            calc_col(pixel[0]),
+                            calc_col(pixel[1]),
+                            calc_col(pixel[2]),
                             0,
                         ]);
 
