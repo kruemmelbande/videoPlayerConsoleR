@@ -126,7 +126,6 @@ fn main() {
             }
             write!(lock, "\n").expect("error writing to stdout");
         }
-
         std::io::stdout().flush().unwrap();
         let target_time = start_time + Duration::from_micros(frame as u64 * n as u64);
 
