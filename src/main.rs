@@ -16,27 +16,6 @@ use video_player_console_r::{calculate_divider, clear_console, get_options, Vide
 fn main() {
     let options: VideoOptions = get_options(&env::args().collect());
 
-    // process::exit(0);
-
-    // if args.len() == 5 {
-    //     options = VideoOptions {
-    //         fps: args[1].parse().expect("That isn't a valid fps"),
-    //         color_mode: args[2].parse().expect("That isn't a valid color mode"),
-    //         audio: args[3].parse().expect("That isn't a valid audio mode"),
-    //         mode_option: args[4].parse().expect("That isn't a valid mode option"),
-    //     };
-    // } else if args.len() == 1 {
-    //     options = VideoOptions {
-    //         fps: 25.,
-    //         color_mode: 0,
-    //         audio: true,
-    //         mode_option: 10,
-    //     };
-    // } else {
-    //     eprintln!("Options must be: <fps count> <color mode> <audio toggle> <mode option>");
-    //     process::exit(1);
-    // }
-
     let f: usize = fs::read_dir("video/")
         .expect("Failed to read folder.")
         .count();
