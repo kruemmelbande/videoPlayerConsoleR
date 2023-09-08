@@ -19,10 +19,10 @@ fn main() {
 
     if args.len() == 5 {
         options = VideoOptions {
-            fps: args[1].parse().expect("That isnt a valid fps"),
-            color_mode: args[2].parse().expect("That isnt a valid color mode"),
-            audio: args[3].parse().expect("That isnt a valid audio mode"),
-            mode_option: args[4].parse().expect("That isnt a valid mode option"),
+            fps: args[1].parse().expect("That isn't a valid fps"),
+            color_mode: args[2].parse().expect("That isn't a valid color mode"),
+            audio: args[3].parse().expect("That isn't a valid audio mode"),
+            mode_option: args[4].parse().expect("That isn't a valid mode option"),
         };
     } else if args.len() == 1 {
         options = VideoOptions {
@@ -32,7 +32,7 @@ fn main() {
             mode_option: 10,
         };
     } else {
-        eprintln!("Options must be: <fps count> <color mode> <audio toggle> <mode optionoptions.mode_option>");
+        eprintln!("Options must be: <fps count> <color mode> <audio toggle> <mode option>");
         process::exit(1);
     }
 
@@ -126,6 +126,7 @@ fn main() {
             }
             write!(lock, "\n").expect("error writing to stdout");
         }
+
         std::io::stdout().flush().unwrap();
         let target_time = start_time + Duration::from_micros(frame as u64 * n as u64);
 
