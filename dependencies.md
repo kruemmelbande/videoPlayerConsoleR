@@ -1,6 +1,6 @@
 # This has been testet on WSl, your mileage may vary
 
-You need to have libasound2-dev, and pipewire installed for sound to work.
+You need to have libasound2-dev, and pulseaudio installed for sound to work.
 
 To run the extractor, you need ffmpeg.
 
