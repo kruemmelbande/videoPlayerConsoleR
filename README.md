@@ -2,11 +2,12 @@
 
 A video player for your console written in rust
 
-## How to use
+## Command Line Arguments
 
-```bash
-video_player_console_r <fps count> <color mode> <audio toggle> <mode option>
-```
+- `--fps` \<float bigger than 0>
+- `--mode` \<mode id>
+- `--audio` \<true | false>
+- `--option` \<any natural number or 0>
 
 ## Modes
 
