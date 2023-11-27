@@ -35,7 +35,7 @@ fn calculate_divider(terminal_width: u32, terminal_height: u32, image_width: u32
 fn main() {
     
     let fps: f32 = 24.;
-    let subtitle_enable = false;
+    let mut subtitle_enable = false;
     let subtitle_path = "subtitles.srt";
     let folder_path = "video/";
     let f: usize = fs::read_dir(folder_path)
@@ -43,7 +43,7 @@ fn main() {
         .count();
     let name = "apple-";
     let format = "png";
-    let color: u32 = 2;
+    let color: u32 = 0;
     let mut rng=rand::thread_rng();
     //for full color, use 0 (looks best)
     //for ascii, use 1 (runs best on windows terminal)
@@ -169,6 +169,7 @@ fn main() {
             write!(lock,"\n").expect("error writing to stdout");
   
         }
+        write!(lock, "\x1B[0m").expect("error writing to stdout");
         match srtreader::read_file(subtitle_path, (current_time-start).as_secs_f32()){
             Ok(result) => {
                 if subtitle_enable {
