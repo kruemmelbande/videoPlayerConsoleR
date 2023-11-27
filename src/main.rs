@@ -35,7 +35,7 @@ fn calculate_divider(terminal_width: u32, terminal_height: u32, image_width: u32
 fn main() {
     
     let fps: f32 = 24.;
-    let mut subtitle_enable = false;
+    let subtitle_enable = false;
     let subtitle_path = "subtitles.srt";
     let folder_path = "video/";
     let f: usize = fs::read_dir(folder_path)
